@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Sweet Bakery</title>
+  <style>
+    /* ===== CSS STYLES (NO CHANGE IN VISUALS) ===== */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      scroll-behavior: auto;
+    }
+
+    body {
+      font-family: 'Poppins', sans-serif;
+      background-color: #fffaf5;
+      color: #333;
+      overflow-x: hidden;
+    }
+
+    header {
+      background-color: #ffc8dd;
+      padding: 15px 40px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: fixed;
+      width: 100%;
+      top: 0;
+      left: 0;
+      z-index: 1000;
+      box-shadow: 0 3px 10px rgba(0, 0, 0, 0.1);
+    }
+
+    header h1 {
+      color: #795548;
+      font-size: 28px;
+      letter-spacing: 3px;
+      font-weight: 700;
+    }
+
+    nav a {
+      text-decoration: none;
+      color: #795548;
+      margin-left: 25px;
+      font-weight: 600;
+      transition: color 0.3s, transform 0.3s;
+      position: relative;
+    }
+
+    nav a:hover {
+      color: #ff6f61;
+      transform: scale(1.05);
+    }
+
+    .hero {
+      height: 100vh;
+      background: url('https://t3.ftcdn.net/jpg/12/23/71/90/360_F_1223719050_2sGS1HEz82nY8dHekBCRalhhbLrQqnff.jpg') center/cover no-repeat;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      color: white;
+      padding-top: 80px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.4);
+      z-index: -1;
+    }
+
+    .hero h2 {
+      font-size: 70px;
+      text-shadow: 4px 4px 12px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero a.explore-btn button {
+      background-color: #ff6f61;
+      color: white;
+      border: none;
+      padding: 15px 30px;
+      border-radius: 35px;
+      margin-top: 30px;
+      font-size: 20px;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.4s, background-color 0.3s, box-shadow 0.3s;
+      box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+    }
+
+    .hero a.explore-btn button:hover {
+      transform: scale(1.15);
+      background-color: #e55c50;
+    }
+
+    .products {
+      padding: 100px 50px;
+      text-align: center;
+      background-color: #fffaf5;
+    }
+
+    .products h2 {
+      font-size: 45px;
+      color: #ff6f61;
+      margin-bottom: 60px;
+      text-transform: uppercase;
+    }
+
+    .products h3 {
+      color: #ff6f61;
+      margin: 60px 0 25px;
+      font-size: 34px;
+      text-align: center;
+    }
+
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 30px;
+    }
+
+    .product {
+      background-color: white;
+      border-radius: 20px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+      overflow: hidden;
+      transition: transform 0.5s, box-shadow 0.5s;
+      position: relative;
+    }
+
+    .product:hover {
+      transform: translateY(-15px) scale(1.05) rotate(-0.5deg);
+      box-shadow: 0 12px 30px rgba(0, 0, 0, 0.3);
+    }
+
+    .product .img-wrapper {
+      display: block;
+      width: 100%;
+      height: 250px;
+      overflow: hidden;
+    }
+
+    .product img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.5s;
+    }
+
+    .product .info-box {
+      padding: 0 15px 20px;
+    }
+
+    .product-order-btn {
+      background-color: #25d366;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 25px;
+      font-weight: bold;
+      text-decoration: none;
+      display: inline-block;
+      transition: background-color 0.3s;
+      /* Updated to look like a button */
+      cursor: pointer;
+    }
+
+    .product-order-btn:hover {
+      background-color: #20b856;
+    }
+
+    /* ===== Lightbox Styles (Scroll Fix Included) ===== */
+    .lightbox {
+      display: none;
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.95);
+      z-index: 9999;
+      justify-content: center;
+      align-items: center;
+      overflow-y: auto;
+      /* Allow lightbox content to scroll if needed */
+    }
+
+    .lightbox:target {
+      display: flex;
+    }
+
+    .lightbox:target~body {
+      /* This line hides body scroll but sometimes causes jump on close. Keeping it clean now. */
+    }
+
+    .lightbox img {
+      max-width: 90%;
+      max-height: 90%;
+      border-radius: 10px;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
+    }
+
+    .lightbox .close {
+      position: absolute;
+      top: 20px;
+      right: 30px;
+      color: white;
+      font-size: 45px;
+      text-decoration: none;
+      transition: color 0.3s;
+      z-index: 10000;
+      line-height: 1;
+      font-weight: 300;
+    }
+
+    .lightbox .close:hover {
+      color: #ff6f61;
+      text-shadow: 0 0 10px #ff6f61;
+    }
+
+    .about {
+      background-color: #ffe3e3;
+      padding: 100px 50px;
+      text-align: center;
+    }
+
+    .contact {
+      padding: 80px 50px;
+      background-color: #ffb6b9;
+      text-align: center;
+      color: white;
+    }
+
+    .contact-details p {
+      /* Ensure the WhatsApp number is not covered by fixed header on scroll */
+      padding-top: 50px;
+    }
+
+    footer {
+      background-color: #444;
+      color: #ffc8dd;
+      text-align: center;
+      padding: 15px;
+      font-size: 15px;
+      letter-spacing: 1px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <header>
+    <h1>Sweet Bakery</h1>
+    <nav>
+      <a href="#home">Home</a>
+      <a href="#products">Products</a>
+      <a href="#about">About</a>
+      <a href="#contact">Contact</a>
+    </nav>
+  </header>
+
+  <section class="hero" id="home">
+    <h2>Freshly Baked Happiness</h2>
+    <p>Delicious Cakes, Pastries & Breads Every Day</p>
+    <a href="#products" class="explore-btn">
+      <button>Explore Our Sweet Menu</button>
+    </a>
+  </section>
+
+  <section class="products" id="products">
+    <h2>Our Special Cakes</h2>
+
+    <h3>🎉 Birthday Cakes</h3>
+    <div class="product-grid">
+      <div class="product">
+        <a href="#lightbox-bdcake1" class="img-wrapper">
+          <img
+            src="https://birthdaycake24.com/uploads/worigin/2021/08/03/free-happy-birthday-chocolate-cake-with-name-edit-1_98f53.jpg"
+            alt="Chocolate Birthday Cake"
+            data-img-url="https://birthdaycake24.com/uploads/worigin/2021/08/03/free-happy-birthday-chocolate-cake-with-name-edit-1_98f53.jpg"
+            data-cake-name="Chocolate Birthday Cake">
+        </a>
+        <div class="info-box">
+          <h3>Chocolate Birthday Cake</h3>
+          <p>Rich, moist chocolate layered with buttercream frosting.</p>
+          <button class="product-order-btn" onclick="sendWhatsAppOrder(this)">Order This Cake on WhatsApp</button>
+        </div>
+      </div>
+
+
+      
+      <div class="product-grid">
+        <div class="product">
+          <a href="#lightbox-wdcake1" class="img-wrapper">
+            <img src=https://funcakes.com/content/uploads/2020/03/Rainbow_Surprise_Cake-960x960-c-default.jpg
+             
+              data-img-url="https://cakeoclock.pk/wp-content/uploads/2022/07/2-tier-cake.jpg"
+              data-cake-name="Classic White Wedding Cake">
+          </a>
+
+          <p>Fun, colorful, and perfect for kids’ birthdays!</p>
+
+          <button class="product-order-btn" onclick="sendWhatsAppOrder(this)">Order This Cake on WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>💍 Wedding Cakes</h3>
+    <div class="product-grid">
+      <div class="product">
+        <a href="#lightbox-wdcake1" class="img-wrapper">
+          <img src="https://cakeoclock.pk/wp-content/uploads/2022/07/2-tier-cake.jpg" alt="Classic White Wedding Cake"
+            data-img-url="https://cakeoclock.pk/wp-content/uploads/2022/07/2-tier-cake.jpg"
+            data-cake-name="Classic White Wedding Cake">
+        </a>
+        <div class="info-box">
+          <h3>Classic White Wedding Cake</h3>
+          <p>Elegant design with smooth fondant and floral decorations.</p>
+          <button class="product-order-btn" onclick="sendWhatsAppOrder(this)">Order This Cake on WhatsApp</button>
+        </div>
+      </div>
+      <div class="product">
+        <a href="#lightbox-wdcake2" class="img-wrapper">
+          <img src="https://chocolaparis.qa/cdn/shop/files/web4_7369e779-0f0b-473a-8a8f-50a378d780b6.webp?v=1747907370"
+            alt="Three Tier Floral Cake"
+            data-img-url="https://chocolaparis.qa/cdn/shop/files/web4_7369e779-0f0b-473a-8a8f-50a378d780b6.webp?v=1747907370"
+            data-cake-name="Three Tier Floral Cake">
+        </a>
+        <div class="info-box">
+          <h3>Three Tier Floral Cake</h3>
+          <p>Decorated with handmade sugar flowers for a royal look.</p>
+          <button class="product-order-btn" onclick="sendWhatsAppOrder(this)">Order This Cake on WhatsApp</button>
+        </div>
+      </div>
+    </div>
+
+    <h3>❤️ Anniversary Cakes</h3>
+    <div class="product-grid">
+      <div class="product">
+        <a href="#lightbox-ancak1" class="img-wrapper">
+          <img
+            src="https://cdn.zyrosite.com/cdn-ecommerce/store_01JF8FW5Y9RXH2VXPGEVXK7D6D%2Fassets%2F1738483955836-dimples-cake-02.jpeg"
+            alt="Red Velvet Heart Cake"
+            data-img-url="https://cdn.zyrosite.com/cdn-ecommerce/store_01JF8FW5Y9RXH2VXPGEVXK7D6D%2Fassets%2F1738483955836-dimples-cake-02.jpeg"
+            data-cake-name="Red Velvet Heart Cake">
+        </a>
+        <div class="info-box">
+          <h3>Red Velvet Heart Cake</h3>
+          <p>Soft red velvet with creamy cheese frosting for your love day.</p>
+          <button class="product-order-btn" onclick="sendWhatsAppOrder(this)">Order This Cake on WhatsApp</button>
+        </div>
+      </div>
+      <div class="product">
+        <a href="#lightbox-ancak2" class="img-wrapper">
+          <img
+            src="https://assets.giftalove.com/resources/common/giftimages/productimage2/rose-designer-chocolate-cake.jpg"
+            alt="Chocolate Rose Cake"
+            data-img-url="https://assets.giftalove.com/resources/common/giftimages/productimage2/rose-designer-chocolate-cake.jpg"
+            data-cake-name="Chocolate Rose Cake">
+        </a>
+        <div class="info-box">
+          <h3>Chocolate Rose Cake</h3>
+          <p>Rich chocolate cake topped with edible roses.</p>
+          <button class="product-order-btn" onclick="sendWhatsAppOrder(this)">Order This Cake on WhatsApp</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="about" id="about">
+    <h2>Our Story: Baked with Love</h2>
+    <p>At Sweet Bakery, we believe every dessert tells a story of happiness. Our recipes have been passed down for
+      generations, using only the finest, hand-picked ingredients to ensure every single bite is pure, blissful
+      perfection. We don't just bake; we craft memories. Come visit us and taste the heartwarming difference that
+      passion makes!</p>
+  </section>
+
+  <section class="contact" id="contact">
+    <h2>Let's Connect and Create Magic!</h2>
+
+    <div class="owner-info">
+
+      <p>— Meet Our Head Baker, Maryam —</p>
+    </div>
+
+    <div class="contact-details">
+      <p>
+        📍 G-11 Markaz, Islamabad (Come say hello!)<br>
+        📞 **Hotline:** **+92 318 5141838**<br>
+        📧 **Email Us:** info@sweetbakery.com
+      </p>
+    </div>
+
+    <a href="https://wa.me/923185141838" target="_blank">
+      <button>Direct Chat on WhatsApp</button>
+    </a>
+  </section>
+
+  <footer>
+    © 2025 Sweet Bakery | Crafted with Sprinkles and Love | All Rights Reserved
+  </footer>
+
+
+  <div id="lightbox-bdcake1" class="lightbox">
+    <a href="#" class="close">&times;</a>
+    <img
+      src="https://birthdaycake24.com/uploads/worigin/2021/08/03/free-happy-birthday-chocolate-cake-with-name-edit-1_98f53.jpg"
+      alt="Chocolate Birthday Cake (Large)">
+  </div>
+  <div id="lightbox-bdcake2" class="lightbox">
+    <a href="#" class="close">&times;</a>
+    <img src="https://images.unsplash.com/photo-1608198093002-ad4e0054842d?auto=format&fit=crop&w=300&q=80"
+      alt="Rainbow Sprinkle Cake (Large)">
+  </div>
+  <div id="lightbox-wdcake1" class="lightbox">
+    <a href="#" class="close">&times;</a>
+    <img src="https://cakeoclock.pk/wp-content/uploads/2022/07/2-tier-cake.jpg"
+      alt="Classic White Wedding Cake (Large)">
+  </div>
+  <div id="lightbox-wdcake2" class="lightbox">
+    <a href="#" class="close">&times;</a>
+    <img src="https://chocolaparis.qa/cdn/shop/files/web4_7369e779-0f0b-473a-8a8f-50a378d780b6.webp?v=1747907370"
+      alt="Three Tier Floral Cake (Large)">
+  </div>
+  <div id="lightbox-ancak1" class="lightbox">
+    <a href="#" class="close">&times;</a>
+    <img
+      src="https://lh3.googleusercontent.com/gps-cs-s/AC9h4noVJ8OtdKEcYtVOd_wa0CuZxR6sd_oJpT_zSFxk7VvmRXFHxNg2ZlGdUuAzVBiakhZFMsmJXKmQZAmJRDJ6Qny5EZbmfvZQCx7M4cdjfAnTumnVYiT8AXNUHSES1_eXcD_438r_gQ=s1360-w1360-h1020-rw"
+      alt="Red Velvet Heart Cake (Large)">
+  </div>
+  <div id="lightbox-ancak2" class="lightbox">
+    <a href="#" class="close">&times;</a>
+    <img
+      src="https://lh3.googleusercontent.com/gps-cs-s/AC9h4noVJ8OtdKEcYtVOd_wa0CuZxR6sd_oJpT_zSFxk7VvmRXFHxNg2ZlGdUuAzVBiakhZFMsmJXKmQZAmJRDJ6Qny5EZbmfvZQCx7M4cdjfAnTumnVYiT8AXNUHSES1_eXcD_438r_gQ=s1360-w1360-h1020-rw"
+      alt="Chocolate Rose Cake (Large)">
+  </div>
+
+
+  <script>
+    // 1. WhatsApp Number
+    const WHATSAPP_NUMBER = '923185141838';
+
+    function sendWhatsAppOrder(buttonElement) {
+      // 2. Get the closest product info (image link and cake name)
+      const productDiv = buttonElement.closest('.product');
+
+      // The image tag is inside the 'a' tag, which is inside '.product'
+      const imageElement = productDiv.querySelector('img');
+
+      const cakeName = imageElement.getAttribute('data-cake-name');
+      const imageUrl = imageElement.getAttribute('data-img-url');
+
+      // 3. Construct the WhatsApp message
+      let message = `Hello Sweet Bakery, I would like to order the *${cakeName}*. `;
+      message += `(Please see the image link below to confirm the design.)\n\n`;
+      message += `*Cake Link:*\n${imageUrl}\n\n`;
+      message += `*Required Details:*\nWeight: [e.g., 1 KG]\nFlavor: [e.g., Vanilla/Chocolate]\nMessage on Cake: [e.g., Happy Birthday]\nDelivery Date: [DD/MM/YYYY]`;
+
+      // 4. Encode the message and create the final URL
+      const encodedMessage = encodeURIComponent(message);
+      const whatsappUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodedMessage}`;
+
+      // 5. Open the WhatsApp link
+      window.open(whatsappUrl, '_blank');
+
+      // OPTIONAL: You can add a small alert to tell the user the link is in the message
+      alert("The cake picture link and details are ready in your WhatsApp message. Press send to place the order!");
+    }
+  </script>
+
+</body>
+
+</html>
